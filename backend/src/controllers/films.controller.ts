@@ -2,25 +2,28 @@ import { Request, Response } from "express";
 import { ENTITIES } from "../consts";
 import { fetchItems } from "../services/fetchData";
 import { Film, FilmResponse } from "../entities/films.interface";
-import { applyPagination } from "../utils/utilsController";
+import { applyPagination, applyFilters, applySort } from "../utils/utilsController";
 
 const DEFAULT_PAGE_SIZE = 5;
 
 export const GetFilms = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { startIndex, endIndex } = applyPagination(
-            Number(req.query.page), Number(req.query.limit), DEFAULT_PAGE_SIZE, ENTITIES.FILMS.TOTAL);
+        const { startIndex, endIndex } = applyPagination(req, DEFAULT_PAGE_SIZE, ENTITIES.FILMS.TOTAL);
 
         const films: Film[] = await fetchItems(
             ENTITIES.FILMS.KEY,
             ENTITIES.FILMS.NAME,
-            endIndex,
+            ENTITIES.FILMS.TOTAL,
         );
 
-        const filmsPayload: FilmResponse[] = [];
-        films.forEach((film, key) => {
-            filmsPayload.push({
-                id: key,
+        const filters = ['title', 'episode_id', 'director', 'producer', 'release_date', 'opening_crawl'];
+        let filmsFiltered = applyFilters(req,  Array.from(films.entries()), filters);
+
+        filmsFiltered = applySort(req,  Array.from(films.entries()));
+
+        const filmsPayload: FilmResponse[] = filmsFiltered.map(([id, film]) => {
+            return {
+                id,
                 title: film.title,
                 episodeId: film.episode_id,
                 details: {
@@ -33,7 +36,7 @@ export const GetFilms = async (req: Request, res: Response): Promise<void> => {
                     created: film.created,
                     edited: film.edited,
                 },
-            });
+            }
         });
 
         res.status(200).json(filmsPayload.slice(startIndex, endIndex));
@@ -43,7 +46,7 @@ export const GetFilms = async (req: Request, res: Response): Promise<void> => {
     }
 };
 
-export const GetFilmsWithStarships = async (req: Request, res: Response) => {
+export const GetFilmsWithPlanets = async (req: Request, res: Response) => {
     try {
         const films = await fetchItems(ENTITIES.STARSHIPS.KEY, ENTITIES.STARSHIPS.NAME, ENTITIES.STARSHIPS.TOTAL);
         // const films = await fetchItems(ENTITIES.FILMS.KEY, ENTITIES.FILMS.NAME, 10);
