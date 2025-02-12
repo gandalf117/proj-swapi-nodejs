@@ -30,13 +30,13 @@ export const GetAggregateData = <T, R>(entity: EntityName, subEntity: EntityName
             const entityKey = entity.toUpperCase()
             const entities: Map<number, T> = await fetchItems(
                 entityKey,
-                ENTITIES[entityKey].NAME,
+                ENTITIES[entityKey].FETCH_NAME,
                 ENTITIES[entityKey].TOTAL,
             );
             const subEntityKey = subEntity.toUpperCase()
             const subEntities: Map<number, R> = await fetchItems(
                 subEntityKey,
-                ENTITIES[subEntityKey].NAME,
+                ENTITIES[subEntityKey].FETCH_NAME,
                 ENTITIES[subEntityKey].TOTAL,
             );
 

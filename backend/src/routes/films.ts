@@ -13,7 +13,7 @@ const router = Router();
 
 const DEFAULT_PAGE_SIZE = 5;
 
-const FILTERS = ['title', 'episode_id', 'director', 'producer', 'release_date', 'opening_crawl'];
+const FILTERS = ["title", "episode_id", "director", "producer", "release_date", "opening_crawl"];
 
 router.get("/",
     validateFilms,

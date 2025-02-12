@@ -20,6 +20,7 @@ export const ApplyFilters = <T>(
             const entityMap: [number, T][] = req[`${entityName}Map`];
 
             let filteredEntities = applyFiltersExact(req, entityMap, exactFilters);
+
             filteredEntities = applyFilters(req, filteredEntities, filters);
             filteredEntities = applySort(req, filteredEntities);
 
@@ -46,7 +47,7 @@ export const ApplyAggregateFilters = <T, R, PayloadT, PayloadR>(
             const subEntityName = req.subEntityName;
             const entityMap: [number, T][] = req[`${entityName}Map`];
             const subEntityMap: Map<number, R> = req[`${subEntityName}Map`];
-console.log('entityMap:::', entityMap.length, entityName, subEntityName)
+
             let filteredEntities = applyFiltersExact(req, entityMap, exactFilters);
             filteredEntities = applyFilters(req, filteredEntities, filters);
             filteredEntities = applySort(req, filteredEntities);
@@ -57,9 +58,9 @@ console.log('entityMap:::', entityMap.length, entityName, subEntityName)
                     [subEntityName]: extractEntities<R, PayloadR>(entity[subEntityName], subEntityMap, getSubPayload),
                 }
             });
-console.log('filteredEntities1:::', entitiesPayload.length)
+
             req[`${entityName}Payload`] = applyMultiFilters(req, entitiesPayload, subEntityName, lookupFields);
-console.log('filteredEntities2:::', entitiesPayload.length)
+
             next();
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";

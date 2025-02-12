@@ -1,5 +1,5 @@
 import { Metadata } from "../interfaces/metadata.interface"
-import { PlanetResponse } from "../entities/planets.interface"
+import { PlanetResponse } from "./planets.interface"
 
 export interface Film {
     id: number;
@@ -18,16 +18,18 @@ export interface Film {
     edited: string;
 }
 
+export interface FilmDetails {
+    opening_crawl: string;
+    director: string;
+    producer: string;
+    release_date: string;
+};
+
 export interface FilmResponse {
     id: number;
     title: string;
-    episodeId: number;
-    details: {
-        openingCrawl: string;
-        director: string;
-        producer: string;
-        releaseDate: string;
-    };
+    episode_id: number;
+    details: FilmDetails;
     planets?: (PlanetResponse | {})[];
     metadata: Metadata;
 }

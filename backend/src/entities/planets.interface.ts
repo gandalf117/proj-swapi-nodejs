@@ -1,5 +1,5 @@
 import { Metadata } from "../interfaces/metadata.interface";
-import { FilmResponse } from "../entities/films.interface"
+import { FilmResponse } from "./films.interface"
 
 export interface Planet {
     id: number;
@@ -18,19 +18,21 @@ export interface Planet {
     edited: string;
 };
 
+interface PlanetCharacteristics {
+    rotation_period: number;
+    orbital_period: number;
+    diameter: number;
+    climate: string;
+    gravity: string;
+    terrain: string;
+    surface_water: number;
+}
+
 export interface PlanetResponse {
     id: number;
     name: string;
     population: number;
-    characteristics: {
-        rotationPeriod: number;
-        orbitalPeriod: number;
-        diameter: number;
-        climate: string;
-        gravity: string;
-        terrain: string;
-        surfaceWater: number;
-    };
+    characteristics: PlanetCharacteristics;
     films?: (FilmResponse | {})[];
     metadata: Metadata;
 };

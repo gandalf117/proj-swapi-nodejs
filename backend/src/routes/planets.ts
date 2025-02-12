@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { ENTITIES } from "../consts";
-import validatePlanets from "../validators/films.validator"
+import validatePlanets from "../validators/planets.validator"
 import { getFilmPayload } from "../controllers/films.controller";
 import { getPlanetPayload } from "../controllers/planets.controller";
 import { GetData, GetAggregateData } from "../middlewares/getData.middleware"
@@ -13,9 +13,9 @@ const router = Router();
 
 const DEFAULT_PAGE_SIZE = 5;
 
-const FILTERS = ['name', 'climate', 'gravity', 'terrain'];
+const FILTERS = ["name", "climate", "gravity", "terrain"];
 
-const FILTERS_EXACT_MATCH = ['rotation_period', 'orbital_period', 'diameter', 'surface_water'];
+const FILTERS_EXACT_MATCH = ["rotation_period", "orbital_period", "diameter", "surface_water", "population"];
 
 router.get("/",
     validatePlanets,
@@ -26,7 +26,7 @@ router.get("/",
 router.get("/with-films",
     validatePlanets,
     GetAggregateData<Planet, Film>(ENTITIES.PLANETS.NAME, ENTITIES.FILMS.NAME), 
-    ApplyAggregateFilters<Planet, Film, PlanetResponse, FilmResponse>(FILTERS, [], getPlanetPayload, getFilmPayload, ["id", "title"]), 
+    ApplyAggregateFilters<Planet, Film, PlanetResponse, FilmResponse>(FILTERS, FILTERS_EXACT_MATCH, getPlanetPayload, getFilmPayload, ["id", "title"]), 
     GetEntitiesWithPagination<PlanetResponse>(DEFAULT_PAGE_SIZE)
 );
 
