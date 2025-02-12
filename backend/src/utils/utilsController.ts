@@ -1,38 +1,80 @@
 import { Request } from "express";
+import { extractIdFromURL } from "../utils/utilsService";
+import { Film } from "../entities/films.interface";
+import { Planet } from "../entities/planets.interface";
 
 export const applyPagination = (
     req: Request,
     limitDefault: number,
     totalSize: number
-  ): { startIndex: number; endIndex: number } => {
+  ): { page: number, limit: number, totalPages: number, startIndex: number; endIndex: number } => {
     const limit = Number(req.query.limit) || limitDefault;
     const totalPages = Math.ceil(totalSize / limit);
     // make sure the current page is not bigger than the total possible pages
     const page = Math.min(Number(req.query.page) || 1, totalPages);
     
     return {
-      startIndex: (page - 1) * limit,
-      endIndex: Math.min(page * limit, totalSize),
+        page,
+        limit,
+        totalPages,
+        startIndex: (page - 1) * limit,
+        endIndex: Math.min(page * limit, totalSize),
     };
 };
 
 type Item = {
-    [key: string]: any;
+    [key: string]: Planet | Film;
 };
 
-export const applyFilters = (req: Request, items: [number, Item][], props: string[]): [number, Item][] => {
+// applys an array of filters where the seached for value needs to be contained (not exact match)
+export const applyFilters = <T>(req: Request, items: [number, T][], props: string[]): [number, T][] => {
     return props.reduce((filteredItems, prop) => {
         const queryValue = req.query[prop];
+        
         if (queryValue) {
-            return filteredItems.filter(([id, item]) => 
-                item[prop] && item[prop].toLowerCase().includes(String(queryValue).toLowerCase())
+            return filteredItems.filter(([id, item]) =>
+                item[prop] !== undefined && String(item[prop]).toLowerCase().includes(String(queryValue).toLowerCase())
             );
         }
         return filteredItems;
     }, items);
 };
 
-export const applySort = (req: Request, items: [number, Item][]): [number, Item][] => {
+// applys an array of filters where the seached for value needs to exactly match
+export const applyFiltersExact = <T>(req: Request, items: [number, T][], props: string[]): [number, T][] => {
+    return props.reduce((filteredItems, prop) => {
+        const queryValue = req.query[prop];
+        
+        if (queryValue) {
+            return filteredItems.filter(([id, item]) =>
+                item[prop] !== undefined && String(item[prop]) === queryValue
+            );
+        }
+        return filteredItems;
+    }, items);
+};
+
+// looks for multiple values for a given property on the array
+export const applyMultiFilters = <EntityPayload>(
+    req: Request,
+    items: EntityPayload[],
+    deepProp: string,
+    props: string[]
+): EntityPayload[] => {
+    const queryValue = String(req.query[deepProp] ?? '').split(',').filter(Boolean);
+    // This has the potential to be a very costly operation but given the context it is used in,
+    // all three arrays are likely to be quite short, one of the arrays is not going to exceed length of 2
+    return queryValue.length ? items.filter((item) => {
+        return Array.isArray(item[deepProp]) && item[deepProp].some(el => 
+            props.some(prop => el[prop] && queryValue.some(qval => 
+                    String(el[prop]).toLowerCase().includes(qval.toLowerCase())
+                )
+            )
+        )
+    }) : items;
+};
+
+export const applySort = <T>(req: Request, items: [number, T][]): [number, T][] => {
     const order = req.query.order || 'asc';
     const property = String(req.query.sort);
     return property ? items.sort((a, b) => {
@@ -50,3 +92,15 @@ export const applySort = (req: Request, items: [number, Item][]): [number, Item]
         return order === 'asc' ? comparison : -comparison;
     }) : items;
 };
+
+export const extractEntities = <T, R>(
+    itemUrls: string[],
+    items: Map<number, T>,
+    getEntityPayload: (id: number, item: T) => R
+): (R | {})[] => {
+    return itemUrls.map(url => {
+        const id = extractIdFromURL(url);
+        const item = items.get(id);
+        return item ? getEntityPayload(id, item) : {};
+    });
+}

@@ -2,7 +2,7 @@ import { formatResults } from "../utils/utilsService";
 import axios from "axios";
 import NodeCache from "node-cache";
 
-const cache = new NodeCache({ stdTTL: 300 });
+const cache = new NodeCache({ stdTTL: 3000 });
 
 const SWAPI_PAGE_LIMIT = 10;
 
@@ -11,7 +11,7 @@ export const fetchItems = async (cacheKey: string, entity: string, total: number
         const cachedData = cache.get(cacheKey) as Map<number, Object>;
 
         if (cachedData) {
-            console.log(`Cache hit for ${cacheKey}`);
+            console.log(`Cache hit for ${entity}`);
             return cachedData;
         }
 
