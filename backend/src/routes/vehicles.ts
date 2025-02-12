@@ -25,7 +25,7 @@ router.get("/",
     ApplyFilters<Vehicle>(FILTERS, FILTERS_EXACT_MATCH, getVehiclePayload), 
     GetEntitiesWithPagination<VehicleResponse>(DEFAULT_PAGE_SIZE)
 );
-router.get("/with-people",
+router.get("/with-pilots",
     validateVehicle,
     GetAggregateData<Vehicle, People>(ENTITIES.VEHICLES.NAME, ENTITIES.PILOTS.NAME), 
     ApplyAggregateFilters<Vehicle, People, VehicleResponse, PeopleResponse>(FILTERS, FILTERS_EXACT_MATCH, getVehiclePayload, getPeoplePayload, LOOKUP_PROPS), 

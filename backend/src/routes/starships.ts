@@ -25,7 +25,7 @@ router.get("/",
     ApplyFilters<Starship>(FILTERS, FILTERS_EXACT_MATCH, getStarshipPayload), 
     GetEntitiesWithPagination<StarshipResponse>(DEFAULT_PAGE_SIZE)
 );
-router.get("/with-people",
+router.get("/with-pilots",
     validateStarship,
     GetAggregateData<Starship, People>(ENTITIES.STARSHIPS.NAME, ENTITIES.PILOTS.NAME), 
     ApplyAggregateFilters<Starship, People, StarshipResponse, PeopleResponse>(FILTERS, FILTERS_EXACT_MATCH, getStarshipPayload, getPeoplePayload, LOOKUP_PROPS), 
